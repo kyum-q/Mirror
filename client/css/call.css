@@ -1,0 +1,261 @@
+body {
+    color: white;
+}
+
+
+.call_button {
+    background: transparent;
+    border: none;
+    flex: 1;
+}
+
+/* 음성통화창 css */
+#audio-chat-container {
+    width: 20vw;
+    height: 10vw;
+    position: absolute;
+    top: 45%;
+    left: 5%;
+    transform: translate(0%, -50%);
+    background-color: rgb(56, 56, 56);
+    border-radius: 2vw;
+}
+
+#audio-chat-container .caller {
+    text-align: center;
+    padding-left: 0vw;
+    height: 5vw;
+    padding-top: 1vw;
+}
+
+/* 영상통화창 css */
+#video-chat-container {
+    width: 32vw;
+    height: 25vw;
+    position: absolute;
+    top: 45%;
+    left: 5%;
+    transform: translate(0%, -50%);
+    background-color: rgb(56, 56, 56);
+    border-radius: 2vw;
+}
+
+.caller {
+    width: 100%;
+    height: 3vw;
+    font-size: 1.3vw;
+    padding-left: 2vw;
+    transform: translateY(0.6vw);
+}
+
+#video-container {
+    width: 100%;
+    height: 19vw;
+}
+
+#local-video {
+    background-color: gray;
+    position: absolute;
+    height: 8vw;
+    width: 13.5vw;
+    right: 0vw;
+}
+
+#remote-video {
+    background-color: black;
+    height: 100%;
+    width: 100%;
+}
+
+.disconnect-button {
+    background: transparent;
+    border: none;
+    flex: 1;
+    height: 3vw;
+    width: 100%;
+    transform: translateY(-0.3vw);
+}
+
+.disconnect-icon {
+    height: 2.3vw;
+    width: 2.3vw;
+    cursor: pointer;
+    transform: translateY(0.3vw);
+}
+
+/* 전화 요청 창 css */
+#caller-accept-container {
+    background-color: rgb(47, 47, 47);
+    border-radius: 1.5vw;
+    width: 24vw;
+    height: 15vw;
+    
+    position: absolute;
+    top: 40%;
+    right: 50%;
+    transform: translate(50%, -50%);
+}
+
+#caller-accept-container button {
+    width: 50%;
+    height: 50%;
+    cursor: pointer;
+}
+
+.call-accept-icon {
+    width: 3vw;
+    height: 3vw;
+}
+
+#accept-icon {
+    transform: rotate(220deg);
+}
+
+#caller-alert {
+    width: 100%;
+    height: 50%;
+    text-align: center;
+    font-size: 1.8vw;
+    transform: translateY(3.5vw);
+}
+
+/* 전화 거절당한 창 css */
+#call-refusal-container .caller {
+    padding-left: 0vw;
+    height: 50%;
+    position: none;
+    transform: translateY(50%);
+    
+}
+
+#call-refusal-alert{
+    width: 100%;
+    font-size: 1.5vw;
+    height: 50%;
+    transform: translateY(10%);
+}
+
+/* 전화 버튼 클릭시 나오는 창 css */
+#bar_phone_container{
+    width: 50%;
+    height: 30%;
+    position: absolute;
+    bottom:20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgb(56, 56, 56);
+    border-radius: 3vh;
+}
+
+#record-set-component {
+    width: 100%;
+    height: 3vw;
+    text-align: center;
+}
+
+.record-set-button {
+    display: inline-block;
+    width: 7.7vw;
+    height: 2.5vw;
+    font-size: 1.3vw;
+    background: transparent;
+    border: none;
+    color: white;
+    border: 0.2vh solid rgba(255, 255, 255, 0.092);
+    background-color: rgba(255, 255, 255, 0.092);
+}
+
+#all-record-button {
+    position:absolute;
+    top: 0.4vw;
+    right: 50%;
+
+}
+
+#absensce-button {
+    position:absolute;
+    top: 0.4vw;
+    left: 50%;
+}
+
+#record-button, #call-address-button{
+    width: 50%;
+    height: 2vw;
+    position: absolute;
+    bottom: 0.5vw;
+}
+
+#call-address-button {
+    right: 0%;
+}
+
+.call-conponent{
+    width: 100%;
+    height: 80%;
+    position: absolute;
+    overflow: scroll;
+    background-color: rgba(100, 100, 100, 0.6);
+}
+
+.call-conponent::-webkit-scrollbar{
+    display: none;
+}
+
+/* 통화기록 css */
+#call-address-icon, #record-icon {
+    height: 3vw;
+    width: 3vw;
+    transform: translateY(-0.5vw);
+}
+
+.call-conponent > div {
+    font-size: 1.2vw;
+    width: 100%;
+    height:4vw;
+    border-bottom: 0.1vh solid rgba(255, 255, 255, 0.103); 
+}
+
+.call-sender-icon {
+    height: 1.6vw;
+    width: 1.6vw;
+    padding-top: 5%;
+    padding-left: 5%;
+}
+
+.call-record-caller{
+    display: inline-block;
+    width: 50%;
+    height: 3vw;
+    font-size: 1.5vw;
+    padding-left: 1vw;
+    transform: translateY(-0.5vw);
+}
+
+#call-record span {
+    font-size: 1vw;
+    position: absolute;
+    right: 5%;
+    padding-top: 5%;
+}
+
+
+/* 주소록 css */
+#call-address-book {
+    top:10%;
+}
+
+.calling-icon {
+    height: 2.5vw;
+    width: 2.5vw;
+    padding-top: 1vw;
+    position: absolute;
+    cursor: pointer;
+}
+
+.calling-icon:nth-child(odd){
+    right: 1vw;
+}
+
+.calling-icon:nth-child(even) {
+    right: 4.5vw;
+}

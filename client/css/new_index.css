@@ -1,0 +1,356 @@
+html {
+    transform: rotate(-90deg);
+    transform-origin: top left;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100vh;
+    height: 100vw; 
+}
+
+#setting-container{
+    position: absolute;
+    right: 1.5vw;
+    top: 1vw
+}
+
+#setting-component div {
+    font-size: 1vw;
+    /* text-align: center; */
+    padding: 0vw 1vw 1.3vw 1vw;
+    /* padding-left: 6vh; */
+}
+
+#logout {
+    display: inline-block;
+    position: absolute;
+    /* right: 6vw;
+    top: 18vw; */
+    right: 1vw;
+    top: 1.5vw;
+    width: 3vw;
+    height: 1.5vw;
+    border-radius: 20% 20% 20% 20%;
+    background-color: aliceblue;
+    /* background: transparent; */
+    border: none;
+    flex: 1;
+}
+
+#setting-component {
+    display: none;
+    position: absolute;
+    right: 0vw;
+    top: 3.5vw;
+    width: 13vw;
+    height: 13vw;
+    background-color: rgb(86, 86, 86);
+    border-radius: 1vw 1vw 1vw 1vw;
+    padding-top: 1.5vw;
+    z-index: 100;
+}
+
+#set_button{
+    background: transparent;
+    border: none;
+    flex: 1;
+    position: absolute;
+    top: 0vw;
+    right: 0vw;
+
+}
+#set-icon{
+    height: 3vw;
+    width: 3vw;
+    /* background-color: rgba(105, 105, 105, 0.418); */
+    border-radius: 1vw 1vw 1vw 1vw;
+}
+
+.alert-container{
+    background-color: rgb(47, 47, 47);
+    border-radius: 1.5vw;
+    width: 25vw;
+    height: 13vw;
+    position: absolute;
+    top: 40%;
+    right: 50%;
+    transform: translate(50%, -50%);
+    text-align: center;
+}
+
+.alert-container .close-area {
+    display: inline-block;
+    position: absolute;
+    right: 2vw;
+    top: 1vw;
+    cursor: pointer;
+    font-size: 1.3vw;
+    text-shadow: 1px 1px 2px gray;
+    color: white;
+}
+
+.alert-container #stt-alert {
+    width: 80%;
+    font-size: 1.4vw;
+    height: 35%;
+    margin-top: 1.7vw;
+    padding-left: 10%;
+    padding-right: 10%;
+    transform: translateY(50%);
+}
+
+#stt-sned-button  {
+    background: transparent;
+    border: none;
+    flex: 1;
+    color:white;
+    transform: translateY(3vw);
+    font-size: 1.1vw;
+    visibility :hidden;
+}
+
+#bar_container {
+
+    position: absolute;
+    width: 88%;
+    height: 6vw;
+    bottom: 2vw;
+    left: 50%;
+    transform: translate(-50%);
+    background:rgba(255, 255, 255, 0.2);
+    border-radius: 1vw;
+    display: flex;
+/* 
+    display: flex;
+    position: absolute;
+    width: 960px;
+    height: 112px;
+    left: 60px;
+    top: 1716px;
+
+    background: rgba(255, 255, 255, 0.4); */
+    border-radius: 15px;
+    /* position: absolute;
+    width: 88%;
+    height: 6%;
+    bottom: 4%;
+    left: 50%;
+    transform: translate(-50%);
+    background:rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    display: flex; */
+}
+
+/* #bar_button_container {
+    display: inline-block;
+    width: 100%;
+} */
+
+.bar_button {
+    background: transparent;
+    border: none;
+    flex: 1;
+    /* background-color: aqua; */
+    /* margin-left: 7%;
+    margin-right: 7%; */
+    /* vertical-align: middle; */
+}
+
+.bar_icon {
+
+    height: 3.5vw;
+    width: 3,5vw;
+    /* border: solid 1px red; */
+    /* height: 80px;
+    width: 80px; */
+    /* padding-left: 7%;
+    padding-right: 7%; */
+}
+
+/* #message_option_container {
+    position: absolute;
+    width: 50%;
+    height: 6%;
+    bottom: 13%;
+    left: 50%;
+    transform: translate(-50%);
+    background-color: transparent;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-around;
+    border: 1px solid yellow;
+} */
+
+#radio_container{
+    position: absolute;
+    width: 690px;
+    height: 60px;
+    left: 60px;
+    top: 1500px;
+    display: flex;
+
+    background: rgb(84, 84, 84);
+    border-radius: 0px 0px 20px 20px;
+    /* position: absolute;
+    bottom: 20%;
+    left: 5%;
+    width: 66%;
+    height: 3%;
+    display: flex;
+    background:rgba(255, 255, 255, 0.2);
+    border-radius: 0px 0px 10px 10px; */
+}
+
+#memo_radio_container{
+    position: absolute;
+    width: 690px;
+    height: 60px;
+    left: 60px;
+    top: 1500px;
+    display: flex;
+
+    background: rgb(84, 84, 84);
+    border-radius: 0px 0px 20px 20px;
+
+}
+
+.menu {
+    flex: 1;
+    /* font-size: 0.8rem;
+    text-align: center;
+    vertical-align: center; */
+    font-size: 20px;
+    line-height: 24px;
+    text-align: center;
+    top: 0; bottom:0; margin-top:auto; margin-bottom:auto;
+}
+
+.option_radio{
+    display: none;
+}
+
+.option_radio:checked + .menu {
+    color:white;
+    /* font-weight: bold; */
+}
+
+.memo_option_radio{
+    display: none;
+}
+
+.memo_option_radio:checked + .menu {
+    color:white;
+}
+
+#content {
+    position: absolute;
+    width: 690px;
+    height: 840px;
+    left: 60px;
+    top: 660px;
+
+    background: rgb(84, 84, 84);
+    border-radius: 20px 20px 0px 0px;
+    /* position: absolute;
+    bottom: 23%;
+    left: 5%;
+    width: 66%;
+    height: 42%;
+    display: flex;
+    background:rgba(255, 255, 255, 0.2);
+    border-radius: 10px 10px 0px 0px; */
+}
+
+.option_button {
+    border: none;
+    background: transparent;
+    /* position: absolute; */
+    width: 50px;
+    height: 50px;
+    /* width: fit-content;
+    height: fit-content; */
+}
+
+.option_icon {
+    width: 50px;
+    height: 50px;
+    left: 655px;
+    top: 705px;
+    /* width: 1.3rem;
+    height: 1.3rem; */
+}
+
+#write_button {
+    position: absolute;
+    top: 45px;
+    right: 45px;
+    /* right: 5%;
+    top: 6%; */
+}
+
+#memo_write_button {
+    position: absolute;
+    top: 45px;
+    right: 45px;
+    /* right: 5%;
+    top: 6%; */
+}
+
+#back_button {
+    position: absolute;
+    top: 45px;
+    left: 45px;
+}
+
+#memo_back_button {
+    position: absolute;
+    top: 45px;
+    left: 45px;
+}
+
+#select_content {
+    /* border: solid 1px yellow; */
+    position: absolute;
+    width: 690px;
+    height: 720px;
+    bottom: 0px;
+    /* width: 100%;
+    height: 85%; */
+    /* top:15%; */
+}
+
+#textArea{
+    position:absolute; 
+    width: 65%; 
+    height: 35%;
+    background-color: gray; 
+    border: none;
+    left: 50%;
+    top: 40%;
+    transform: translate(-50%, -50%);
+    font-size: 25px;
+    color: white;
+    padding: 5%;
+}
+
+#textArea:focus {
+    outline: 2px solid darkgray;
+}
+
+#memo_textArea{
+    position:absolute; 
+    width: 65%; 
+    height: 35%;
+    background-color: gray; 
+    border: none;
+    left: 50%;
+    top: 40%;
+    transform: translate(-50%, -50%);
+    font-size: 25px;
+    color: white;
+    padding: 5%;
+}
+
+#memo_textArea:focus {
+    outline: 2px solid darkgray;
+}
