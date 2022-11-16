@@ -19,7 +19,7 @@ const callerConponent = document.getElementsByClassName('caller')
 const callRefusalContainer = document.getElementById('call-refusal-container')
 
 // Variables.
-const socket = io.connect('ws://172.30.1.96:9000/') // socket 서버 연결
+const socket = io.connect('ws://192.168.200.171:9000/') // socket 서버 연결
 let mediaConstraints = { // 미디어 설정
   audio: false,
   video: false,
@@ -227,7 +227,7 @@ socket.on('webrtc_answer',   (event) => {
 })
 
 // 웹 브라우저 간에 직접적인 P2P를 할 수 있도록 해주는 프레임워크 ICE 제공 -> Signaling
-socket.on('webrtc_ice_candidate', async (event) => {
+socket.on('webrtc_ice_candidate', (event) => {
   console.log('Socket event callback: webrtc_ice_candidate')
 
   // ICE candidate configuration.
@@ -452,6 +452,9 @@ function setRemoteStream(event) {
   remoteStream = event.stream
 }
 
+
+
+
 /* 원격 스트림을 위한 설정, 다른이에게 내 비디오 condidate 주기 */
 function sendIceCandidate(event) {
   setTimeout(function () { // 10초 후 일시정지
@@ -473,7 +476,6 @@ function sendIceCandidate(event) {
   }, 2000)
 
 }
-
 
 /* 전화 기록 남기기 */
 const callRecord = function (id, friendId, state) {
