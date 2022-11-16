@@ -187,6 +187,11 @@ socket.on('start_call', async (other) => {
 })
 /* 통화 연결 */
 
+const setConnected = () => new Promise( (resolve, reject) => {
+  console.log("!!!!!!!! setConnected")
+  isConnected = true
+  resolve(isConnect)
+})
 // 먼저 연결하고자 하는 Peer(상대)의 SDP 받기 (내가 전화를 걺 -> 그쪽에서 수락 후 SDP 제공) 
 socket.on('webrtc_offer', async (event) => {
   console.log('Socket event callback: webrtc_offer')
@@ -202,8 +207,11 @@ socket.on('webrtc_offer', async (event) => {
 
     rtcPeerConnection.ontrack = setRemoteStream
     rtcPeerConnection.onicecandidate = sendIceCandidate
-    rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(event.sdp))
+    console.log("!!!!!!!! webrtc_offer")
+    await rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(event.sdp))
+    await setConnected()
     await createAnswer(rtcPeerConnection)
+
   }
 })
 
@@ -211,16 +219,12 @@ socket.on('webrtc_offer', async (event) => {
 socket.on('webrtc_answer', async (event) => {
   console.log('Socket event callback: webrtc_answer')
   isRoomJoin = true
+  console.log("!!!!!!!! webrtc_answer")
   await rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(event))
   await setConnected()
 })
 
 
-const setConnected = new Promise( (resolve, reject) => {
-  
-  isConnected = true
-  resolve(isConnect)
-})
 
 // 웹 브라우저 간에 직접적인 P2P를 할 수 있도록 해주는 프레임워크 ICE 제공 -> Signaling
 socket.on('webrtc_ice_candidate', (event) => {
