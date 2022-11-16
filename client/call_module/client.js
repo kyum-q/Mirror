@@ -47,7 +47,7 @@ let roomInformation = { // 나의 room 정보
   newRoomId: null,
   myRoomId: null,
 }
-var isConnected = false;
+let isConnected = false
 
 
 // module로 다른 js에서 사용할 수 있는 변수
@@ -210,8 +210,9 @@ socket.on('webrtc_offer', async (event) => {
 socket.on('webrtc_answer', (event) => {
   console.log('Socket event callback: webrtc_answer')
   isRoomJoin = true
-  isConnected = true
+  
   rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(event))
+  isConnected = true
 })
 
 // 웹 브라우저 간에 직접적인 P2P를 할 수 있도록 해주는 프레임워크 ICE 제공 -> Signaling
@@ -420,6 +421,7 @@ async function createAnswer(rtcPeerConnection) {
   try {
     sessionDescription = await rtcPeerConnection.createAnswer()
     rtcPeerConnection.setLocalDescription(sessionDescription)
+    isConnected = true
   } catch (error) {
     console.error(error)
   }
@@ -442,13 +444,10 @@ function setRemoteStream(event) {
 
 
 
-
-/* 원격 스트림을 위한 설정, 다른이에게 내 비디오 condidate 주기 */
-function sendIceCandidate(event) {
-  setTimeout(function () { // 10초 후 일시정지
-
+const ice = setInterval(function () { // 10초 후 일시정지
+  if (isConnected) {
+    clearTimeout(ice);
     if (event.candidate) {
-
       roomId = roomInformation.newRoomId
       socket.emit('webrtc_ice_candidate', {
         roomId,
@@ -461,9 +460,9 @@ function sendIceCandidate(event) {
       setLocalStream(false, true)
       isConnect = true
     }
-  }, 2000)
+  }
+}, 500)
 
-}
 
 /* 전화 기록 남기기 */
 const callRecord = function (id, friendId, state) {
