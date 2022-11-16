@@ -359,23 +359,31 @@ const setLocalStream = async function (audioValue, videoValue) {
 
   if (videoValue == true) {
     // ****************************************
+    /*
     if (localStream != undefined) {
-      localStream.getTracks().forEach(function (track) {
+      await localStream.getTracks().forEach(function (track) {
         track.stop();
       });
-    }
+    }*/
     // ****************************************
     mediaConstraints.video = { width: 1800, height: 1200 }
   }
 
-  else
-    mediaConstraints.video = false
+  else{
+    mediaConstraints.video = null
+  }
 
   let stream = null
   if (mediaConstraints.audio != false || mediaConstraints.video != false) {
     try {
       // 해당 기기에 연결된 장치(카메라, 마이크)를 불러온다
-      stream = await navigator.mediaDevices.getUserMedia(mediaConstraints)
+      if(videoValue == false) {
+        stream = await navigator.mediaDevices.getUserMedia({audio: audioValue})
+      }
+      else {
+        stream = await navigator.mediaDevices.getUserMedia(mediaConstraints)
+      }
+      
       localStream = stream
       localVideoComponent.srcObject = stream
 
