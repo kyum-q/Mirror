@@ -71,6 +71,7 @@ const iceServers = {
 }
 
 const client = require('../message_module/message_mqtt');
+const { resolve } = require('path')
 
 // BUTTON LISTENER ============================================================
 
@@ -207,24 +208,31 @@ socket.on('webrtc_offer', async (event) => {
 })
 
 // 응답하는 Peer(상대)의 SDP 받기 (내가 전화를 받고 수락 후 SDP 제공 -> 상대도 응답으로 SDP 제공) 
-socket.on('webrtc_answer', (event) => {
+socket.on('webrtc_answer', async (event) => {
   console.log('Socket event callback: webrtc_answer')
   isRoomJoin = true
+  await rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(event))
+  await setConnected()
+})
+
+
+const setConnected = new Promise( (resolve, reject) => {
   
-  rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(event))
   isConnected = true
+  resolve(isConnect)
 })
 
 // 웹 브라우저 간에 직접적인 P2P를 할 수 있도록 해주는 프레임워크 ICE 제공 -> Signaling
 socket.on('webrtc_ice_candidate', (event) => {
   console.log('Socket event callback: webrtc_ice_candidate')
-
+  
   // ICE candidate configuration.
   var candidate = new RTCIceCandidate({
     sdpMLineIndex: event.label,
     candidate: event.candidate,
   })
   rtcPeerConnection.addIceCandidate(candidate)
+  //
 })
 
 /* 통화 종료 */
@@ -421,7 +429,6 @@ async function createAnswer(rtcPeerConnection) {
   try {
     sessionDescription = await rtcPeerConnection.createAnswer()
     rtcPeerConnection.setLocalDescription(sessionDescription)
-    isConnected = true
   } catch (error) {
     console.error(error)
   }
