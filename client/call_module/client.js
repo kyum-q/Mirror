@@ -227,7 +227,7 @@ socket.on('webrtc_answer',   (event) => {
 })
 
 // 웹 브라우저 간에 직접적인 P2P를 할 수 있도록 해주는 프레임워크 ICE 제공 -> Signaling
-socket.on('webrtc_ice_candidate', (event) => {
+socket.on('webrtc_ice_candidate', async (event) => {
   console.log('Socket event callback: webrtc_ice_candidate')
 
   // ICE candidate configuration.
@@ -452,29 +452,26 @@ function setRemoteStream(event) {
   remoteStream = event.stream
 }
 
-
-
-
 /* 원격 스트림을 위한 설정, 다른이에게 내 비디오 condidate 주기 */
 function sendIceCandidate(event) {
-  // const ice = setInterval(function () { // 10초 후 일시정지
-    //if (isConnected) {
-      clearTimeout(ice);
-      if (event.candidate) {
-        roomId = roomInformation.newRoomId
-        socket.emit('webrtc_ice_candidate', {
-          roomId,
-          label: event.candidate.sdpMLineIndex,
-          candidate: event.candidate.candidate,
-          myId,
-        })
-      }
-      if (!isConnect) {
-        setLocalStream(false, true)
-        isConnect = true
-      }
-    //}
-  // }, 500)
+  setTimeout(function () { // 10초 후 일시정지
+
+    if (event.candidate) {
+
+      roomId = roomInformation.newRoomId
+      socket.emit('webrtc_ice_candidate', {
+        roomId,
+        label: event.candidate.sdpMLineIndex,
+        candidate: event.candidate.candidate,
+        myId,
+      })
+    }
+    if (!isConnect) {
+      setLocalStream(false, true)
+      isConnect = true
+    }
+  }, 2000)
+
 }
 
 
