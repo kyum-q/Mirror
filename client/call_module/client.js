@@ -31,6 +31,8 @@ connectingSound.autoplay = true// audio가 load 될 때 자동재생 됨
 connectingSound.pause()
 
 let localStream // 내 스트리밍
+let sendStream
+let audioOffStream
 let remoteStream // 상대 스트리밍
 let isRoomJoin // 내가 방 들어갔는지  확인
 let isRoomCloser = false // 내가 전화 끊었는지 확인
@@ -131,7 +133,7 @@ socket.on('room_joined', async () => {
   console.log('Socket event callback: room_joined')
 
   showVideoConference()
-  await setLocalStream(false, true)
+  await setLocalStream(false, true, false)
 
   const roomId = roomInformation.newRoomId
 
@@ -187,7 +189,7 @@ socket.on('start_call', async (other) => {
 })
 /* 통화 연결 */
 
-const setConnected = () => new Promise( (resolve, reject) => {
+const setConnected = () => new Promise((resolve, reject) => {
   console.log("!!!!!!!! setConnected")
   isConnected = true
   resolve(isConnect)
@@ -195,7 +197,7 @@ const setConnected = () => new Promise( (resolve, reject) => {
 // 먼저 연결하고자 하는 Peer(상대)의 SDP 받기 (내가 전화를 걺 -> 그쪽에서 수락 후 SDP 제공) 
 socket.on('webrtc_offer', async (event) => {
   console.log('Socket event callback: webrtc_offer')
-  
+
   //otherId = event.myId
 
   if (roomInformation.newRoomId != roomInformation.myRoomId) { // 내가 방을 참가함(전화를 걺)
@@ -203,13 +205,13 @@ socket.on('webrtc_offer', async (event) => {
     connectingSoundPause()
 
     rtcPeerConnection = new RTCPeerConnection(iceServers)
-    await setLocalStream(true, true)
+    await setLocalStream(true, true, true)
 
     rtcPeerConnection.ontrack = setRemoteStream
     rtcPeerConnection.onicecandidate = sendIceCandidate
     console.log("!!!!!!!! webrtc_offer")
     await rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(event.sdp))
-    
+
     await createAnswer(rtcPeerConnection)
     await setConnected()
   }
@@ -229,7 +231,7 @@ socket.on('webrtc_answer', async (event) => {
 // 웹 브라우저 간에 직접적인 P2P를 할 수 있도록 해주는 프레임워크 ICE 제공 -> Signaling
 socket.on('webrtc_ice_candidate', (event) => {
   console.log('Socket event callback: webrtc_ice_candidate')
-  
+
   // ICE candidate configuration.
   var candidate = new RTCIceCandidate({
     sdpMLineIndex: event.label,
@@ -307,7 +309,7 @@ const joinRoom = function (room) {
 const exitRoom = async function () {
   console.log("exitRoom")
 
-  await setLocalStream(false, false)
+  await setLocalStream(false, false, false)
   hiddenVideoConference()
   hiddencallerContainer()
   connectingSoundPause()
@@ -339,7 +341,7 @@ async function callAgree(callAccept) {
   if (callAccept) { // 전화를 받았을 때
     showVideoConference()
     rtcPeerConnection = new RTCPeerConnection(iceServers)
-    await setLocalStream(true, true)
+    await setLocalStream(true, true, true)
 
     rtcPeerConnection.ontrack = setRemoteStream
     rtcPeerConnection.onicecandidate = sendIceCandidate
@@ -354,8 +356,9 @@ async function callAgree(callAccept) {
 
 
 /* 내 비디오 실행 및 오디오 실행(스트리밍) */
-const setLocalStream = async function (audioValue, videoValue) {
+const setLocalStream = async function (audioValue, videoValue, setStream) {
   mediaConstraints.audio = audioValue
+
 
   if (videoValue == true) {
     // ****************************************
@@ -369,29 +372,31 @@ const setLocalStream = async function (audioValue, videoValue) {
     mediaConstraints.video = { width: 1800, height: 1200 }
   }
 
-  else{
-    mediaConstraints.video = null
-  }
+  else
+    mediaConstraints.video = false
 
   let stream = null
   if (mediaConstraints.audio != false || mediaConstraints.video != false) {
     try {
-      // 해당 기기에 연결된 장치(카메라, 마이크)를 불러온다
-      if(videoValue == false) {
-        stream = await navigator.mediaDevices.getUserMedia({audio: audioValue})
+
+      if (setStream == false) {
+        console.log("$$$$$$$$$$$$$$$$$$$$$ false")
+        stream = await navigator.mediaDevices.getUserMedia(mediaConstraints)
+        audioOffStream = stream
+        localVideoComponent.srcObject = stream
       }
       else {
+        // 해당 기기에 연결된 장치(카메라, 마이크)를 불러온다
         stream = await navigator.mediaDevices.getUserMedia(mediaConstraints)
-      }
-      
-      localStream = stream
-      localVideoComponent.srcObject = stream
+        localStream = stream
+        localVideoComponent.srcObject = stream
 
-      if (mediaConstraints.audio != false && mediaConstraints.video != false) {
-        // MidiaStreamTrack을 받아와 rtcPeerConnection에 트랙 추가 
-        localStream.getTracks().forEach((track) => {
-          rtcPeerConnection.addTrack(track, localStream)
-        })
+        if (mediaConstraints.audio != false && mediaConstraints.video != false) {
+          // MidiaStreamTrack을 받아와 rtcPeerConnection에 트랙 추가 
+          localStream.getTracks().forEach((track) => {
+            rtcPeerConnection.addTrack(track, localStream)
+          })
+        }
       }
     } catch (error) {
       console.error('Could not get user media', error)
@@ -407,6 +412,11 @@ const setLocalStream = async function (audioValue, videoValue) {
         console.log(`track: ${rtcPeerConnection.ontrack}`)
       }
       localStream.getTracks().forEach(function (track) {
+        track.stop();
+      });
+    }
+    if (audioOffStream != undefined) {
+      audioOffStream.getTracks().forEach(function (track) {
         track.stop();
       });
     }
@@ -465,24 +475,24 @@ function setRemoteStream(event) {
 
 /* 원격 스트림을 위한 설정, 다른이에게 내 비디오 condidate 주기 */
 function sendIceCandidate(event) {
-const ice = setInterval(function () { // 10초 후 일시정지
-  if (isConnected) {
-    clearTimeout(ice);
-    if (event.candidate) {
-      roomId = roomInformation.newRoomId
-      socket.emit('webrtc_ice_candidate', {
-        roomId,
-        label: event.candidate.sdpMLineIndex,
-        candidate: event.candidate.candidate,
-        myId,
-      })
+  const ice = setInterval(function () { // 10초 후 일시정지
+    if (isConnected) {
+      clearTimeout(ice);
+      if (event.candidate) {
+        roomId = roomInformation.newRoomId
+        socket.emit('webrtc_ice_candidate', {
+          roomId,
+          label: event.candidate.sdpMLineIndex,
+          candidate: event.candidate.candidate,
+          myId,
+        })
+      }
+      if (!isConnect) {
+        setLocalStream(false, true, false)
+        isConnect = true
+      }
     }
-    if (!isConnect) {
-      setLocalStream(false, true)
-      isConnect = true
-    }
-  }
-}, 500)
+  }, 500)
 }
 
 
