@@ -1,4 +1,4 @@
-// const dbAccess = require('../mirror_db.js')
+const dbAccess = require('../mirror_db.js')
 const moment = require('moment')
 
 // DOM elements.
@@ -118,19 +118,19 @@ dontAccept.addEventListener('click', () => {
 /* 통화 요청 && 수락 */
 
 // room에 join 했을 때 돌아오는 callback (내 전화)
-socket.on('room_created',   () => {
+socket.on('room_created', async () => {
   console.log('Socket event callback: room_created')
 
 })
 
 // room에 join 했을 때 돌아오는 callback (친구한테 전화 걸기)
-socket.on('room_joined',   () => {
+socket.on('room_joined', async () => {
   isConnected = false
   isRoomCloser = false
   console.log('Socket event callback: room_joined')
 
   showVideoConference()
-    setLocalStream(false, true)
+  await setLocalStream(false, true)
 
   const roomId = roomInformation.newRoomId
 
@@ -148,7 +148,7 @@ socket.on('full_room', (roomId) => {
 })
 
 // room에 들어와 전화 요청을 받았을 때
-socket.on('start_call',   (other) => {
+socket.on('start_call', async (other) => {
   isRoomCloser = false
   isConnect = false
   isConnected = false
@@ -160,46 +160,34 @@ socket.on('start_call',   (other) => {
     callMyId = other.otherId
     callOption = other.callOption
 
-    // // 전화번호를 주소록에서 확인해보기
-    // dbAccess.select('name', 'friend', `friend_id=${otherId} and id=${callMyId}`)
-    //   .then(value => {
-    //     if (value.length == 0)
-    //       senderName = otherId
-    //     else
-    //       senderName = value[0].name
+    // 전화번호를 주소록에서 확인해보기
+    dbAccess.select('name', 'friend', `friend_id=${otherId} and id=${callMyId}`)
+      .then(value => {
+        if (value.length == 0)
+          senderName = otherId
+        else
+          senderName = value[0].name
 
-    //     callWaiting = setTimeout(function () { // 10초 후 일시정지
-    //       socket.emit('exit', roomInformation.newRoomId)
-    //       exitRoom()
-    //     }, 10000)
-    //     connectingSoundPlay()
-    //     showcallerContainer()
+        callWaiting = setTimeout(function () { // 10초 후 일시정지
+          socket.emit('exit', roomInformation.newRoomId)
+          exitRoom()
+        }, 10000)
+        connectingSoundPlay()
+        showcallerContainer()
 
-    //     callerConponent[callOption].innerText = `Calling [ ${senderName} ]`
-    //     if (callOption == 0)
-    //       callerAlert.innerText = senderName + '님의 음성통화'
-    //     else
-    //       callerAlert.innerText = senderName + '님의 영상통화'
+        callerConponent[callOption].innerText = `Calling [ ${senderName} ]`
+        if (callOption == 0)
+          callerAlert.innerText = senderName + '님의 음성통화'
+        else
+          callerAlert.innerText = senderName + '님의 영상통화'
 
-    //   })
-    callWaiting = setTimeout(function () { // 10초 후 일시정지
-            socket.emit('exit', roomInformation.newRoomId)
-            exitRoom()
-          }, 10000)
-          connectingSoundPlay()
-          showcallerContainer()
-  
-          callerConponent[callOption].innerText = `Calling [ ${senderName} ]`
-          if (callOption == 0)
-            callerAlert.innerText = senderName + '님의 음성통화'
-          else
-            callerAlert.innerText = senderName + '님의 영상통화'
+      })
   }
 })
 /* 통화 연결 */
 
 // 먼저 연결하고자 하는 Peer(상대)의 SDP 받기 (내가 전화를 걺 -> 그쪽에서 수락 후 SDP 제공) 
-socket.on('webrtc_offer',  async (event) => {
+socket.on('webrtc_offer', async (event) => {
   console.log('Socket event callback: webrtc_offer')
   
   //otherId = event.myId
@@ -209,17 +197,17 @@ socket.on('webrtc_offer',  async (event) => {
     connectingSoundPause()
 
     rtcPeerConnection = new RTCPeerConnection(iceServers)
-      setLocalStream(true, true)
+    await setLocalStream(true, true)
 
     rtcPeerConnection.ontrack = setRemoteStream
     rtcPeerConnection.onicecandidate = sendIceCandidate
-    await rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(event.sdp))
+    rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(event.sdp))
     await createAnswer(rtcPeerConnection)
   }
 })
 
 // 응답하는 Peer(상대)의 SDP 받기 (내가 전화를 받고 수락 후 SDP 제공 -> 상대도 응답으로 SDP 제공) 
-socket.on('webrtc_answer',   (event) => {
+socket.on('webrtc_answer', (event) => {
   console.log('Socket event callback: webrtc_answer')
   isRoomJoin = true
   isConnected = true
@@ -303,10 +291,10 @@ const joinRoom = function (room) {
 }
 
 /* Server에 메시지 송신해서 지금 방에서 leave하고 원래 내 방(내 전화번호) join */
-const exitRoom =   function () {
+const exitRoom = async function () {
   console.log("exitRoom")
 
-    setLocalStream(false, false)
+  await setLocalStream(false, false)
   hiddenVideoConference()
   hiddencallerContainer()
   connectingSoundPause()
@@ -331,19 +319,19 @@ const exitRoom =   function () {
 }
 
 /* 전화가 와서 상대 전화를 받을 지 안받을 지 정하기 */
-  function callAgree(callAccept) {
+async function callAgree(callAccept) {
   clearTimeout(callWaiting) //setTimeOut
   hiddencallerContainer()
   connectingSoundPause()
   if (callAccept) { // 전화를 받았을 때
     showVideoConference()
     rtcPeerConnection = new RTCPeerConnection(iceServers)
-      setLocalStream(true, true)
+    await setLocalStream(true, true)
 
     rtcPeerConnection.ontrack = setRemoteStream
     rtcPeerConnection.onicecandidate = sendIceCandidate
 
-      createOffer(rtcPeerConnection)  // offer SDP 상대에게 제공
+    await createOffer(rtcPeerConnection)  // offer SDP 상대에게 제공
   }
   else { // 전화를 거절했을 때
     isRoomCloser = true
@@ -353,7 +341,7 @@ const exitRoom =   function () {
 
 
 /* 내 비디오 실행 및 오디오 실행(스트리밍) */
-const setLocalStream =   function (audioValue, videoValue) {
+const setLocalStream = async function (audioValue, videoValue) {
   mediaConstraints.audio = audioValue
 
   if (videoValue == true) {
@@ -374,7 +362,7 @@ const setLocalStream =   function (audioValue, videoValue) {
   if (mediaConstraints.audio != false || mediaConstraints.video != false) {
     try {
       // 해당 기기에 연결된 장치(카메라, 마이크)를 불러온다
-      stream =   navigator.mediaDevices.getUserMedia(mediaConstraints)
+      stream = await navigator.mediaDevices.getUserMedia(mediaConstraints)
       localStream = stream
       localVideoComponent.srcObject = stream
 
@@ -405,11 +393,11 @@ const setLocalStream =   function (audioValue, videoValue) {
 }
 
 /* 상대에게 연결하자고 SDP 만들어 보내기 (내가 전화를 받음)  */
-  function createOffer(rtcPeerConnection) {
+async function createOffer(rtcPeerConnection) {
 
   let sessionDescription
   try {
-    sessionDescription =   rtcPeerConnection.createOffer()
+    sessionDescription = await rtcPeerConnection.createOffer()
     rtcPeerConnection.setLocalDescription(sessionDescription)
   } catch (error) {
     console.error(error)
@@ -418,7 +406,7 @@ const setLocalStream =   function (audioValue, videoValue) {
   roomId = roomInformation.newRoomId
 
   // socket서버로 메시지 송신 
-    socket.emit('webrtc_offer', {
+  socket.emit('webrtc_offer', {
     type: 'webrtc_offer',
     sdp: sessionDescription,
     roomId,
@@ -427,10 +415,10 @@ const setLocalStream =   function (audioValue, videoValue) {
 }
 
 /* 상대에게 연결 수락하고자 SDP 만들어 보내기 (내가 전화를 걺)  */
-  async function createAnswer(rtcPeerConnection) {
+async function createAnswer(rtcPeerConnection) {
   let sessionDescription
   try {
-    sessionDescription =   rtcPeerConnection.createAnswer()
+    sessionDescription = await rtcPeerConnection.createAnswer()
     rtcPeerConnection.setLocalDescription(sessionDescription)
   } catch (error) {
     console.error(error)
@@ -439,7 +427,7 @@ const setLocalStream =   function (audioValue, videoValue) {
   roomId = roomInformation.newRoomId
 
   // socket서버로 메시지 송신 
-    socket.emit('webrtc_answer', {
+  socket.emit('webrtc_answer', {
     type: 'webrtc_answer',
     sdp: sessionDescription,
     roomId,
@@ -485,6 +473,21 @@ const callRecord = function (id, friendId, state) {
   // delecte_time 형식 지정
   var time = moment(newDate).format('YYYY-MM-DD HH:mm:ss')
 
-  // var data = { id: parseInt(id), friend_id: parseInt(friendId), state: state, call_option: callOption, call_time: time }
-  // dbAccess.createColumns('call_record', data)
+  var data = { id: parseInt(id), friend_id: parseInt(friendId), state: state, call_option: callOption, call_time: time }
+  dbAccess.createColumns('call_record', data)
 }
+
+
+/*
+CREATE TABLE `mirror_db`.`call_record` (
+  `record_no` INT NOT NULL AUTO_INCREMENT,
+  `state` INT NOT NULL,
+  `call_option` INT NOT NULL,
+  `id` INT NOT NULL,
+  `friend_id` INT NOT NULL,
+  `call_time` DATETIME NOT NULL,
+  PRIMARY KEY (`record_no`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_bin;
+ */
