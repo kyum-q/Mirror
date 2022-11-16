@@ -209,9 +209,9 @@ socket.on('webrtc_offer', async (event) => {
     rtcPeerConnection.onicecandidate = sendIceCandidate
     console.log("!!!!!!!! webrtc_offer")
     await rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(event.sdp))
-    await setConnected()
+    
     await createAnswer(rtcPeerConnection)
-
+    
   }
 })
 
@@ -432,7 +432,7 @@ async function createAnswer(rtcPeerConnection) {
   let sessionDescription
   try {
     sessionDescription = await rtcPeerConnection.createAnswer()
-    rtcPeerConnection.setLocalDescription(sessionDescription)
+    await rtcPeerConnection.setLocalDescription(sessionDescription)
   } catch (error) {
     console.error(error)
   }
@@ -440,11 +440,12 @@ async function createAnswer(rtcPeerConnection) {
   roomId = roomInformation.newRoomId
 
   // socket서버로 메시지 송신 
-  socket.emit('webrtc_answer', {
+  await socket.emit('webrtc_answer', {
     type: 'webrtc_answer',
     sdp: sessionDescription,
     roomId,
   })
+  await setConnected()
 }
 
 /* 원격 스트림을 위한 설정, 다른이의 비디오 받아오기 */
