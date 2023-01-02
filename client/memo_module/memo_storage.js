@@ -6,6 +6,7 @@ function showMemoStorage() {
     console.log('showMemoStorage');
     _db.select('*', 'memo', `id =${_db.getId()}`)
         .then(memos => {
+            if(memos.length<=0) return;
             create_storage(memos);
         })
 }
@@ -55,8 +56,14 @@ function create_storage(memos) {
 
 var currunt_sender = '';
 //메시지 함에서 오른쪽 메시지 클릭시 과거의 메시지 모두 출력
+
+const memo_send_watch = document.getElementById('memo_send_watch')
+const progressbar = document.getElementById("progressbar-container")
+
 function memo_storage_detail(seq) {
 
+    memo_send_watch.style.visibility = "visible"
+    progressbar.style.display = "none"
 
     //var contents = document.getElementById('memo_storage_detail_contents');
     //contents.replaceChildren();
@@ -65,6 +72,7 @@ function memo_storage_detail(seq) {
     // else document.getElementById('memo_storage_detail_sender').innerHTML = sender;
     _db.select('*', 'memo', `id=${_db.getId()} and seq=${seq}`)
         .then((memo) => {
+            if(memo.length <=0) return;
             var memo = memo[0];
             console.log('memo-detail', memo);
             let content = document.getElementById('memo_storage_detail_content')
@@ -73,7 +81,7 @@ function memo_storage_detail(seq) {
             let date = document.getElementById('memo_storage_detail_date');
 
             //date, time
-            date.innerHTML = moment(memo.time).format('MM-DD HH:mm');
+            //date.innerHTML = moment(memo.time).format('MM-DD HH:mm');
 
             //context
             switch (memo.type) {

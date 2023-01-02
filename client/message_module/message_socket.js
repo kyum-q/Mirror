@@ -8,7 +8,7 @@ const moment = require('moment');
 //const mirror_db = require('./mirror_db');
 //npm install @types/socket.io-client --save
 
-var socket = io('http://113.198.84.128:80/', { transports : ['websocket'] });
+var socket = io('http://192.168.200.171:9000/', { transports : ['websocket'] });
 
 socket.on("connect", () => {
     console.log("connection socket server", mirror_db.getId());
@@ -44,7 +44,7 @@ function sub(){
             case 'image':
                 new Promise((resolve, reject) =>{
                     var time = new Date().getTime();
-                    var folder = './image/message/'
+                    var folder = '../image/message/'
                     var filename = time ;
                     var url = req.content.split(',')[1];
                     var bstr = atob(url);

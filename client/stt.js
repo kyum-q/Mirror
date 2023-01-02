@@ -1,7 +1,7 @@
 /* Section1. mqtt 모듈 require 및 broker 연동 */
 const mqtt = require('mqtt')
 const options = {  //broker 연동 위한 옵션(브로커 IP 및 포트번호)
-  host: '127.0.0.1',
+  host: '192.168.200.171',
   port: 1883
 };
 mqttClient = mqtt.connect(options);

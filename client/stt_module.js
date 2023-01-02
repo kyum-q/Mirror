@@ -41,7 +41,7 @@ let messageTime
 
 /* mqtt 브로커 연결 및 topic subscribe */
 const options = { // 브로커 정보(ip, port)
-    host: '127.0.0.1',
+    host: '192.168.200.171',
     port: 1883
 }
 

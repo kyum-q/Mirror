@@ -1,9 +1,11 @@
+
 /* 모듈 사용할 객체 */
 let dbAccess = {};
 let id;
 
-let mirror_id = 400; 
-let name;
+var mirror_id = 100; 
+
+var name;
 
 // mysql 모듈 불러오기
 var mysql = require('mysql');
@@ -163,15 +165,29 @@ const addUser = (name) => new Promise((resolve, reject) => {
     console.log('addUser call');
 
     // user table 제작에 필요한 column을 데이터 객체로 형성
-    var data = { name: name};
+    var data = { name: name, mirror_id: mirror_id};
 
     // user 행 제작
     createColumns('user', data)
         .then(result => {
             if (result) {
-                selectColumns('id', 'user', `name='${name}'`)
+                selectColumns('id', 'user',`name='${name}'`)
                     .then(value => {
                         console.log('dv: ' + parseInt(value[value.length - 1].id));
+
+                        var time = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
+                        contents = { // 인자로 보낼 데이터
+                            receiver: value[value.length - 1].id,
+                            sender: 1001,
+                            content: "안녕하세요",
+                            type: 'text',
+                            send_time: time
+                        }
+                        createColumns('message', contents);
+                        createColumns('friend', {id:value[value.length - 1].id,name:"박채원",friend_id:"1001" })
+                        createColumns('memo', {id: value[value.length - 1].id, content: "따듯한 날엔 라떼", 
+                                        store: "0", delete_time: time, type: "text", time: time })
+                      
                         resolve(String(value[value.length - 1].id));
                     });
             }
@@ -179,7 +195,8 @@ const addUser = (name) => new Promise((resolve, reject) => {
                 reject(null);
             }
         });
-});
+        
+    });
 
 dbAccess.addUser = addUser;
 
@@ -206,19 +223,17 @@ dbAccess.addMemo =  (id, content, store, type) => new Promise((resolve, reject) 
         resolve(value)
     })
 })
-
 // 모듈로 id도 사용 하기 위해 dbAccess에 추가
 dbAccess.id = id;
 
 /* user id 설정과 user id에 따른 name 설정 */
-
 dbAccess.setUser = (user_id) => new Promise((resolve, reject) => {
     id = user_id
     mirror_id = (String(id)).substr(0,3)
-    selectColumns('name', 'user', `id=${id}`)
+    selectColumns('name', 'user', `id=${id}`, `mirror_id=${mirror_id}`)
         .then(value => {
             name = value[0].name
-            console.log('mirror_id:' + mirror_id)
+            //console.log('mirror_id:' + mirror_id)
             // 모듈로 name도 사용 하기 위해 dbAccess에 추가
             dbAccess.name = name
             resolve({id: id, name: name})

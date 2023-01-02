@@ -19,7 +19,7 @@ const callerConponent = document.getElementsByClassName('caller')
 const callRefusalContainer = document.getElementById('call-refusal-container')
 
 // Variables.
-const socket = io.connect('ws://192.168.200.171:9000/') // socket 서버 연결
+const socket = io.connect('ws://127.0.0.1:9000/') // socket 서버 연결
 let mediaConstraints = { // 미디어 설정
   audio: false,
   video: false,
@@ -51,6 +51,43 @@ let roomInformation = { // 나의 room 정보
 }
 let isConnected = false
 
+/* ##################################### 성능 평가 ##################################### */
+const PERFORM_EVALUATION = true
+const Measure = require("../../evaluation/measure")
+let count = 0;
+let loop = 10;
+
+function evaluationTest(value) {
+  count = 0;
+
+  Measure.callMeasure.startExp()
+
+  if (PERFORM_EVALUATION) {
+
+    const performEvalue = setInterval(function () { // 5초 후 실행
+
+
+      if (count >= loop) {
+        clearInterval(performEvalue);
+        Measure.callMeasure.endExp()
+      }
+      else {
+        joinRoom(value)
+        startTime = new Date();
+        Measure.callMeasure.putDepartureTime(startTime)
+      }
+      count++;
+      console.log("################## count :" + count)
+    }, 8000)
+
+  }
+  else {
+    joinRoom(value)
+  }
+}
+
+
+/* #################################################################################### */
 
 // module로 다른 js에서 사용할 수 있는 변수
 let callFunction = {}
@@ -63,7 +100,7 @@ callFunction.check_event = 0
 
 // Free public STUN servers provided by Google.
 const iceServers = {
-  iceServers: [
+  iceServers: [ 
     { urls: 'stun:stun.l.google.com:19302' },
     { urls: 'stun:stun1.l.google.com:19302' },
     { urls: 'stun:stun2.l.google.com:19302' },
@@ -83,7 +120,11 @@ new Promise(() => {
     inputValue = String(roomInput.value).split('?')
     otherId = inputValue[0]
     callOption = inputValue[1]
-    joinRoom(inputValue[0].substring(0, 3))
+
+    if (PERFORM_EVALUATION) {
+      evaluationTest(inputValue[0].substring(0, 3))
+    }
+    //joinRoom(inputValue[0].substring(0, 3))
   })
   callFunction.check_event = 1  // 지금 버튼 설정이 다 됬는지 확인
 })
@@ -123,10 +164,9 @@ dontAccept.addEventListener('click', () => {
 // room에 join 했을 때 돌아오는 callback (내 전화)
 socket.on('room_created', async () => {
   console.log('Socket event callback: room_created')
-
 })
 
-// room에 join 했을 때 돌아오는 callback (친구한테 전화 걸기)
+// room에 join 했을 때 돌아오는 callback (친구한테 전화 옴)
 socket.on('room_joined', async () => {
   isConnected = false
   isRoomCloser = false
@@ -150,7 +190,7 @@ socket.on('full_room', (roomId) => {
   exitRoom()
 })
 
-// room에 들어와 전화 요청을 받았을 때
+// 친구가 내 전화를 받아줬을 때 (받고 친구가 자신의 SDP를 같이 보냄)
 socket.on('start_call', async (other) => {
   isRoomCloser = false
   isConnect = false
@@ -171,11 +211,17 @@ socket.on('start_call', async (other) => {
         else
           senderName = value[0].name
 
-        callWaiting = setTimeout(function () { // 10초 후 일시정지
-          socket.emit('exit', roomInformation.newRoomId)
-          exitRoom()
-        }, 10000)
-        connectingSoundPlay()
+        if (PERFORM_EVALUATION) {
+          callAgree(true)
+        }
+        else {
+          callWaiting = setTimeout(function () { // 10초 후 일시정지
+            socket.emit('exit', roomInformation.newRoomId)
+            console.log("callWaiting................")
+            exitRoom()
+          }, 10000)
+          connectingSoundPlay()
+        }
         showcallerContainer()
 
         callerConponent[callOption].innerText = `Calling [ ${senderName} ]`
@@ -196,6 +242,10 @@ const setConnected = () => new Promise((resolve, reject) => {
 })
 // 먼저 연결하고자 하는 Peer(상대)의 SDP 받기 (내가 전화를 걺 -> 그쪽에서 수락 후 SDP 제공) 
 socket.on('webrtc_offer', async (event) => {
+
+  endTime = new Date();
+  Measure.callMeasure.putArrivalTime(endTime)
+
   console.log('Socket event callback: webrtc_offer')
 
   //otherId = event.myId
@@ -361,15 +411,7 @@ const setLocalStream = async function (audioValue, videoValue, setStream) {
 
 
   if (videoValue == true) {
-    // ****************************************
-    /*
-    if (localStream != undefined) {
-      await localStream.getTracks().forEach(function (track) {
-        track.stop();
-      });
-    }*/
-    // ****************************************
-    mediaConstraints.video = { width: 1800, height: 1200 }
+    mediaConstraints.video = { width: 1280, height: 720 }
   }
 
   else
@@ -381,6 +423,11 @@ const setLocalStream = async function (audioValue, videoValue, setStream) {
 
       if (setStream == false) {
         console.log("$$$$$$$$$$$$$$$$$$$$$ false")
+        if (audioOffStream != undefined) {
+          audioOffStream.getTracks().forEach(function (track) {
+            track.stop();
+          });
+        }
         stream = await navigator.mediaDevices.getUserMedia(mediaConstraints)
         audioOffStream = stream
         localVideoComponent.srcObject = stream

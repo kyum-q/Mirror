@@ -9,7 +9,7 @@ var memo_slides = document.querySelectorAll('#memo-slider-wrap ul li');
 //number of slides
 var totalSlides ;
 //get the slide width
-var sliderWidth = slideWrapper.clientWidth;
+var sliderWidth = document.getElementById('memo-slider-wrap').clientWidth;
 var slider = document.querySelector('#memo-slider-wrap ul#memo-slider');
 var nextBtn = document.getElementById('memo_next');
 var prevBtn = document.getElementById('memo_previous');
@@ -30,21 +30,26 @@ function addEvent(length){
     //totalSlides = memo_slides.length;
     //get the slide width
     sliderWidth = slideWrapper.clientWidth;
+    sliderHeight = slideWrapper.clientHeight
     //set width of items
     memo_slides.forEach(function (element) {
+       
         element.style.width = sliderWidth + 'px';
+        element.style.height = sliderHeight + 'px';
     })
     //set width to be 'x' times the number of slides
     slider = document.querySelector('#memo-slider-wrap ul#memo-slider');
-    slider.style.width = sliderWidth * totalSlides + 'px';
-
+    slider.style.width = (sliderWidth * totalSlides)+ 'px';
+   // slider.style.height = 500+ 'px';
     // next, prev
     nextBtn = document.getElementById('memo_next');
     prevBtn = document.getElementById('memo_previous');
     nextBtn.addEventListener('click', function () {
+        console.log("+클릭");
         plusSlides(1);
     });
     prevBtn.addEventListener('click', function () {
+        console.log("-클릭");
         plusSlides(-1);
     });
 
@@ -74,7 +79,8 @@ function showSlides(n) {
     } else if (slideIndex === totalSlides) {
         slideIndex = 0;
     }
-
+    console.log(slider);
+   // console.log(slideIndex+".index");
     slider.style.left = -(sliderWidth * slideIndex) + 'px';
     //pagination();
 }
@@ -101,6 +107,7 @@ function showSlides(n) {
 function initMemo() {
     mirror_db.select('*', 'memo', `id = ${mirror_db.getId()}`)
     .then(memos => { 
+            if(memos.length <=0 ) return;
             create_memo_div(memos);
     })
    // message_list.forEach(message => { })
@@ -270,6 +277,7 @@ const setStore = function (seq) {
     console.log('setStore call: ' + seq);
     mirror_db.select('store', 'memo', `id=${mirror_db.getId()} and seq=${seq}`)
         .then(value => {
+            if(value.length <=0) return;
             // store가 0일 경우 1로, 1일 경우 0으로
             const store = (value[0].store + 1) % 2;
             /* delete time 설정 */

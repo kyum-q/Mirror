@@ -80,7 +80,7 @@
     width: 90%;
     height: 50%;
     /* display: inline-block; */
-    background-color: rgb(108, 105, 81);
+    background-color: rgb(90, 90, 90);
     margin: 2%;
     margin-top: 5%;
     margin-left: 3%;
@@ -91,7 +91,7 @@
 #memo_storage_detail_content #memo_storage_detail_context{
     position: absolute;
     width: 80%;
-    top: 40%;
+    top: 50%;
     left: 50%;
     font-size: 25px;
     transform: translate(-50%, -50%);
